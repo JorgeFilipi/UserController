@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # Banco de dados PostgreSQL
+  postgres:
+    image: postgres:15
+    container_name: usercontroller-postgres
+    environment:
+      POSTGRES_DB: usercontroller
+      POSTGRES_USER: usercontroller
+      POSTGRES_PASSWORD: usercontroller123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - usercontroller-network
+
+  # Aplicação Spring Boot
+  app:
+    build: .
+    container_name: usercontroller-app
+    depends_on:
+      - postgres
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/usercontroller
+      DB_USER: usercontroller
+      DB_PASSWORD: usercontroller123
+      SECRET_TOKEN: sua_chave_secreta_jwt_muito_segura_aqui_use_uma_chave_com_pelo_menos_32_caracteres
+    ports:
+      - "8080:8080"
+    networks:
+      - usercontroller-network
+
+volumes:
+  postgres_data:
+
+networks:
+  usercontroller-network:
+    driver: bridge
